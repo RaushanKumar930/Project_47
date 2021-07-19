@@ -13,6 +13,7 @@ var score = 0, turn = 10;
 var colour = 255, colour2 = 0, gameState = 0;
 var greetings, greetingImg, bubbles, bubble = [];
 var check = 0;
+var button;
 
 function preload(){
   polygon_img=loadImage("polygon.png"); 
@@ -63,6 +64,8 @@ function setup() {
 
   sling = new SlingShot(ball.body,{x:100,y:200})
 
+  button = createSprite(190,350,150,100);
+  button.visible = false;
 }
 function draw() {
   background(0,0,0); 
@@ -72,6 +75,17 @@ function draw() {
   textSize(20);
   text("Score: " + score,50,50);
   text("Turn: " + turn,50,80);
+
+  if(colour2 <= 0){
+    colour-= 5;
+  }else if(colour2 >= 255){
+    colour+= 5;
+  }
+  if(colour <= 0){
+    colour2 = 260;
+  }else if(colour >= 255){
+    colour2 = -5;
+  }
 
   if(gameState === 0){
     stand1.display();
@@ -119,6 +133,18 @@ function draw() {
   fill(Math.round(random(0,255)),Math.round(random(0,255)),Math.round(random(0,255)));
   block16.display();
 
+  if(gameState === 0 && turn > 0){
+    if(mousePressedOver(button)){
+      sling.attach(ball.body);
+      Matter.Body.setPosition(ball.body,{x:100,y:200});
+    }
+    fill(255-colour,255-colour,colour);
+    rectMode(CENTER);
+    rect(190,350,150,100);
+    fill(colour,colour,255-colour);
+    text("Another Chance", 120, 360);
+  }
+
   if(removeBody(block1) && removeBody(block2) && removeBody(block3) && removeBody(block4) && removeBody(block5) && removeBody(block6) && removeBody(block7) && removeBody(block8) && removeBody(block9) && removeBody(block10) && removeBody(block11) && removeBody(block12) && removeBody(block13) && removeBody(block14) && removeBody(block15) && removeBody(block16) && removeBody(b2) && removeBody(b3) && removeBody(b4) && removeBody(b5) && removeBody(b6) && removeBody(b9) && removeBody(b10) && removeBody(b11) && removeBody(b14)){
     textSize(25);
     fill(colour,255-colour,255-colour);
@@ -129,22 +155,13 @@ function draw() {
     for(var i in bubble){
       bubble[i].display()
     }
-    if(colour2 <= 0){
-      colour-= 5;
-    }else if(colour2 >= 255){
-      colour+= 5;
-    }
-    if(colour <= 0){
-      colour2 = 260;
-    }else if(colour >= 255){
-      colour2 = -5;
-    }
     gameState = 1;
     spawnBubbles();
     stand1.remove();
     stand2.remove();
   }
   if(turn === 0 && score !== 1000){
+    fill(Math.round(random(0,255)),Math.round(random(0,255)),Math.round(random(0,255)));
     textSize(25);
     text("You Lost", 400, 50);
     text("Press Ctrl+R to try again", 320, 350);
@@ -153,19 +170,20 @@ function draw() {
 }
 
 function mouseDragged(){
-  if(gameState === 0 && turn > 0 && check === 0){
+  if(gameState === 0 && turn > 0 && check === 0 && mouseX <= ball.body.position.x){
     Matter.Body.setPosition(ball.body, {x: mouseX , y: mouseY});
   }
 }
 
-function mousePressed(){
-  if(gameState === 0 && turn > 0){
-    Matter.Body.setPosition(ball.body, {x: mouseX , y: mouseY});
+/*function mouseClicked(){
+  if(gameState === 0 && turn > 0 && mouseX < 200){
+    sling.attach(ball.body);
+    Matter.Body.setPosition(ball.body,{x:100,y:200});
   }
-}
+}*/
 
 function mouseReleased(){
-  if(gameState === 0 && turn > 0){
+  if(gameState === 0 && turn > 0 && mouseX <= ball.body.position.x){
     sling.fly();
     turn--;
   }
@@ -173,8 +191,8 @@ function mouseReleased(){
 
 function keyPressed(){
   if(keyCode===32 && gameState === 0){
-      sling.attach(ball.body)
-      Matter.Body.setPosition(ball.body,{x:100,y:200});
+    sling.attach(ball.body)
+    Matter.Body.setPosition(ball.body,{x:100,y:200});
   }
 }
 
